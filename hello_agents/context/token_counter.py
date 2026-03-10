@@ -9,7 +9,7 @@
 
 import tiktoken
 from typing import List, Dict, Optional
-from ..core.message import Message
+from hello_agents.core.message import Message
 
 
 class TokenCounter:

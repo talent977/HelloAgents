@@ -18,10 +18,10 @@
 """
 
 from typing import Dict, Any, List
-from ..base import Tool, ToolParameter
-from ...skills.loader import SkillLoader
-from ..response import ToolResponse
-from ..errors import ToolErrorCode
+from hello_agents.tools.base import Tool, ToolParameter
+from hello_agents.skills.loader import SkillLoader
+from hello_agents.tools.response import ToolResponse
+from hello_agents.tools.errors import ToolErrorCode
 
 
 class SkillTool(Tool):

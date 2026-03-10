@@ -15,7 +15,7 @@ from datetime import datetime
 import tiktoken
 import math
 
-from ..core.message import Message
+from hello_agents.core.message import Message
 
 
 @dataclass

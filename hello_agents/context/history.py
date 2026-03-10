@@ -9,7 +9,7 @@
 
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-from ..core.message import Message
+from hello_agents.core.message import Message
 
 
 class HistoryManager:

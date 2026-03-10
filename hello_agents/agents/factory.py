@@ -4,9 +4,9 @@
 """
 
 from typing import Optional, TYPE_CHECKING
-from ..core.agent import Agent
-from ..core.llm import HelloAgentsLLM
-from ..core.config import Config
+from hello_agents.core.agent import Agent
+from hello_agents.core.llm import HelloAgentsLLM
+from hello_agents.core.config import Config
 
 if TYPE_CHECKING:
     from ..tools.registry import ToolRegistry

@@ -4,12 +4,12 @@ from typing import Optional, List, Dict, Any, TYPE_CHECKING, AsyncGenerator
 import json
 from datetime import datetime
 
-from ..core.agent import Agent
-from ..core.llm import HelloAgentsLLM
-from ..core.config import Config
-from ..core.message import Message
-from ..core.streaming import StreamEvent, StreamEventType
-from ..core.lifecycle import LifecycleHook
+from hello_agents.core.agent import Agent
+from hello_agents.core.llm import HelloAgentsLLM
+from hello_agents.core.config import Config
+from hello_agents.core.message import Message
+from hello_agents.core.streaming import StreamEvent, StreamEventType
+from hello_agents.core.lifecycle import LifecycleHook
 
 if TYPE_CHECKING:
     from ..tools.registry import ToolRegistry

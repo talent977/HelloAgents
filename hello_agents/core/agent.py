@@ -1,17 +1,23 @@
 """Agent基类"""
 
-from abc import ABC, abstractmethod
-from typing import Optional, List, Dict, Any, Union, TYPE_CHECKING, AsyncGenerator
 import asyncio
 from .message import Message
 from .llm import HelloAgentsLLM
 from .config import Config
+from abc import ABC, abstractmethod
+from datetime import datetime
+from .session_store import SessionStore
+from pathlib import Path
+from hello_agents.skills import SkillLoader
+from hello_agents.context.token_counter import TokenCounter
+from hello_agents.context.history import HistoryManager
+from hello_agents.context.truncator import ObservationTruncator
 from .lifecycle import AgentEvent, EventType, LifecycleHook, ExecutionContext
-
+from typing import Optional, List, Dict, Any, Union, TYPE_CHECKING, AsyncGenerator
 if TYPE_CHECKING:
-    from ..tools.registry import ToolRegistry
-    from ..observability.trace_logger import TraceLogger
-    from ..tools.tool_filter import ToolFilter
+    from hello_agents.tools.registry import ToolRegistry
+    from hello_agents.observability.trace_logger import TraceLogger
+    from hello_agents.tools.tool_filter import ToolFilter
 
 
 class Agent(ABC):
@@ -46,9 +52,6 @@ class Agent(ABC):
         self.tool_registry = tool_registry
 
         # 新增：上下文工程组件
-        from hello_agents.context.history import HistoryManager
-        from hello_agents.context.truncator import ObservationTruncator
-
         self.history_manager = HistoryManager(
             min_retain_rounds=self.config.min_retain_rounds,
             compression_threshold=self.config.compression_threshold
@@ -62,7 +65,7 @@ class Agent(ABC):
         )
 
         # 新增：Token 计数器（缓存 + 增量计算）
-        from ..context.token_counter import TokenCounter
+
         self.token_counter = TokenCounter(model=self.llm.model)
         self._history_token_count = 0  # 缓存历史 Token 数
 
@@ -87,9 +90,6 @@ class Agent(ABC):
             )
 
         # 新增：Skills 知识外化组件
-        from pathlib import Path
-        from hello_agents.skills import SkillLoader
-
         self.skill_loader: Optional[SkillLoader] = None
         if self.config.skills_enabled:
             skills_path = Path(self.config.skills_dir)
@@ -102,8 +102,7 @@ class Agent(ABC):
                 self.tool_registry.register_tool(skill_tool)
 
         # 新增：会话持久化组件
-        from datetime import datetime
-        from .session_store import SessionStore
+
 
         self.session_store: Optional[SessionStore] = None
         if self.config.session_enabled:
@@ -176,8 +175,8 @@ class Agent(ABC):
             执行结果
 
         Example:
-            >>> agent = SimpleAgent(...)
-            >>> result = await agent.arun("Hello", on_start=my_hook)
+            # >>> agent = SimpleAgent(...)
+            # >>> result = await agent.arun("Hello", on_start=my_hook)
         """
         # 触发开始事件
         await self._emit_event(
@@ -232,8 +231,8 @@ class Agent(ABC):
             AgentEvent: 生命周期事件
 
         Example:
-            >>> async for event in agent.arun_stream("Hello"):
-            ...     print(event.type, event.data)
+            # >>> async for event in agent.arun_stream("Hello"):
+            # ...     print(event.type, event.data)
         """
         # 开始事件
         yield AgentEvent.create(
@@ -480,7 +479,7 @@ class Agent(ABC):
             HelloAgentsLLM 实例
         """
         if not hasattr(self, '_summary_llm'):
-            from ..core.llm import HelloAgentsLLM
+            from hello_agents.core.llm import HelloAgentsLLM
 
             # 使用配置中的轻量模型
             provider = self.config.summary_llm_provider
@@ -1150,7 +1149,7 @@ class Agent(ABC):
             # 决定使用哪个 LLM
             if self.config.subagent_use_light_llm:
                 # 使用轻量模型
-                from ..core.llm import HelloAgentsLLM
+                from hello_agents.core.llm import HelloAgentsLLM
                 light_llm = HelloAgentsLLM(
                     provider=self.config.subagent_light_llm_provider,
                     model=self.config.subagent_light_llm_model
@@ -1182,8 +1181,8 @@ class Agent(ABC):
 
         自动注册逻辑，支持用户自定义工厂函数。
         """
-        from ..tools.builtin.task_tool import TaskTool
-        from ..agents.factory import default_subagent_factory
+        from hello_agents.tools.builtin.task_tool import TaskTool
+        from hello_agents.agents.factory import default_subagent_factory
 
         # 创建子代理工厂函数
         def agent_factory(agent_type: str) -> Agent:
@@ -1218,7 +1217,7 @@ class Agent(ABC):
 
         自动注册逻辑，在 __init__ 中调用（如果启用）
         """
-        from ..tools.builtin.todowrite_tool import TodoWriteTool
+        from hello_agents.tools.builtin.todowrite_tool import TodoWriteTool
 
         # 创建并注册 TodoWriteTool
         todo_tool = TodoWriteTool(
@@ -1233,7 +1232,7 @@ class Agent(ABC):
 
         自动注册逻辑，在 __init__ 中调用（如果启用）
         """
-        from ..tools.builtin.devlog_tool import DevLogTool
+        from hello_agents.tools.builtin.devlog_tool import DevLogTool
 
         # 获取 session_id（如果有 trace_logger 则使用其 session_id）
         session_id = self.trace_logger.session_id if self.trace_logger else self._generate_session_id()

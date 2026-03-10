@@ -4,16 +4,16 @@
 """
 
 from typing import Dict, Any, List, Optional, Callable, TYPE_CHECKING
-from ..base import Tool, ToolParameter
-from ...core.agent import Agent
-from ...core.llm import HelloAgentsLLM
-from ...core.config import Config
-from ..response import ToolResponse
-from ..errors import ToolErrorCode
-from ..tool_filter import ToolFilter, ReadOnlyFilter, FullAccessFilter, CustomFilter
+from hello_agents.tools.base import Tool, ToolParameter
+from hello_agents.core.agent import Agent
+from hello_agents.core.llm import HelloAgentsLLM
+from hello_agents.core.config import Config
+from hello_agents.tools.response import ToolResponse
+from hello_agents.tools.errors import ToolErrorCode
+from hello_agents.tools.tool_filter import ToolFilter, ReadOnlyFilter, FullAccessFilter, CustomFilter
 
 if TYPE_CHECKING:
-    from ...tools.registry import ToolRegistry
+    from hello_agents.tools.registry import ToolRegistry
 
 
 class TaskTool(Tool):

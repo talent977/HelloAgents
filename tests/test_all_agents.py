@@ -260,6 +260,10 @@ class TestErrorHandling:
 
 if __name__ == "__main__":
     # 运行所有测试
-    pytest.main([__file__, "-v", "-s", "--tb=short"])
+    # pytest.main([__file__, "-v", "-s", "--tb=short"])
+    agent = TestSimpleAgentUsage()
+    # agent.test_basic_conversation()
+    agent.test_with_calculator()
+    # agent.test_multi_turn()
 
 
