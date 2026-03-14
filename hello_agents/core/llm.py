@@ -5,6 +5,7 @@ from typing import Literal, Optional, Iterator
 from openai import OpenAI
 
 from .exceptions import HelloAgentsException
+from ..utils.env_utils import get_config_section, get_llm_url
 
 # 支持的LLM提供商
 SUPPORTED_PROVIDERS = Literal[
@@ -35,10 +36,10 @@ class HelloAgentsLLM:
 
     def __init__(
         self,
-        model: Optional[str] = None,
+        model: Optional[str] = '',
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
-        provider: Optional[SUPPORTED_PROVIDERS] = None,
+        provider: Optional[SUPPORTED_PROVIDERS] = 'GLM-5',
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
         timeout: Optional[int] = None,
@@ -58,23 +59,35 @@ class HelloAgentsLLM:
             timeout: 超时时间，从环境变量LLM_TIMEOUT读取，默认60秒
         """
         # 优先使用传入参数，如果未提供，则从环境变量加载
-        self.model = model or os.getenv("LLM_MODEL_ID")
+        if model and api_key and base_url:
+            self.api_key = api_key
+            self.base_url = base_url
+            self.model = model
+        else:
+            # 自动检测provider或使用指定的provider
+            requested_provider = (provider or "") if provider else None
+            self.provider = provider or self._auto_detect_provider(api_key, base_url)
+
+            if requested_provider == "custom":
+                self.provider = "custom"
+                self.api_key = api_key or os.getenv("LLM_API_KEY")
+                self.base_url = base_url or os.getenv("LLM_BASE_URL")
+            else:
+                # 根据provider确定API密钥和base_url
+                # self.api_key, self.base_url = self._resolve_credentials(api_key, base_url)
+                default_llm = get_config_section(requested_provider)
+                base_url = base_url or default_llm.get('base_url')
+                domain_is_diff = default_llm.get('domain_is_diff')
+                if domain_is_diff and domain_is_diff == 'True':
+                    # 通过 get_llm_url() 替换 URL 中的域名
+                    base_url = get_llm_url(base_url)
+                self.base_url = base_url
+                self.api_key = default_llm.get('api_key')
+                self.model = default_llm.get('model_id')
         self.temperature = temperature
         self.max_tokens = max_tokens
-        self.timeout = timeout or int(os.getenv("LLM_TIMEOUT", "60"))
+        self.timeout = timeout
         self.kwargs = kwargs
-
-        # 自动检测provider或使用指定的provider
-        requested_provider = (provider or "").lower() if provider else None
-        self.provider = provider or self._auto_detect_provider(api_key, base_url)
-
-        if requested_provider == "custom":
-            self.provider = "custom"
-            self.api_key = api_key or os.getenv("LLM_API_KEY")
-            self.base_url = base_url or os.getenv("LLM_BASE_URL")
-        else:
-            # 根据provider确定API密钥和base_url
-            self.api_key, self.base_url = self._resolve_credentials(api_key, base_url)
 
         # 验证必要参数
         if not self.model:

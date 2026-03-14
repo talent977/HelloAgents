@@ -28,7 +28,7 @@ class MemoryConfig(BaseModel):
     """记忆系统配置"""
     
     # 存储路径
-    storage_path: str = "./memory_data"
+    storage_path: str = "D:\\0-软件下载\sqlLite"
     
     # 统计显示用的基础配置（仅用于展示）
     max_capacity: int = 100
