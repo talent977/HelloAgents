@@ -405,7 +405,13 @@ class WorkingMemory(BaseMemory):
             heapq.heappush(self.memory_heap, (-priority, mem.timestamp, mem))
     
     def _mark_deleted_in_heap(self, memory_id: str):
-        """在堆中标记删除的记忆"""
-        # 由于heapq不支持直接删除，我们标记为已删除
-        # 在后续操作中会被清理
-        pass
+        """在堆中删除指定记忆并重建堆
+
+        由于 heapq 不支持按索引删除，采用过滤+重建的方式，
+        与 _update_heap_priority / _expire_old_memories 保持一致的策略。
+        """
+        self.memory_heap = [
+            entry for entry in self.memory_heap
+            if entry[2].id != memory_id
+        ]
+        heapq.heapify(self.memory_heap)
