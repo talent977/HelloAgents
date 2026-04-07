@@ -9,6 +9,7 @@ from typing import Any, Dict, Iterable, List
 import requests
 
 from ..base import Tool, ToolParameter
+from ...utils.env_utils import get_env_info, get_config_info, get_config_section
 
 try:  # 可选依赖，缺失时降级能力
     from markdownify import markdownify
@@ -119,9 +120,10 @@ class SearchTool(Tool):
             ),
         )
         self.backend = (backend or "hybrid").lower()
-        self.tavily_key = tavily_key or os.getenv("TAVILY_API_KEY")
-        self.serpapi_key = serpapi_key or os.getenv("SERPAPI_API_KEY")
-        self.perplexity_key = perplexity_key or os.getenv("PERPLEXITY_API_KEY")
+        config = get_config_section('search')
+        self.tavily_key = tavily_key or config.get("tavily_api_key")
+        self.serpapi_key = serpapi_key or config.get("serpapi_api_key")
+        self.perplexity_key = perplexity_key or config.get("perplexity_api_key")
 
         self.available_backends: list[str] = []
         self.tavily_client = None

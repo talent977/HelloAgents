@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # 环境变量读取
 import configparser
 import os
@@ -89,10 +87,10 @@ def get_llm_url(url: str) -> str:
     """
     根据系统环境替换 URL 中的域名部分。
     Linux 系统使用内网域名，非 Linux 系统保持原 URL 不变。
-
+    
     Args:
         url: 原始 URL，例如 'https://dashscope.aliyuncs.com/compatible-mode/v1'
-
+        
     Returns:
         替换域名后的 URL
     """
@@ -106,9 +104,8 @@ def get_llm_url(url: str) -> str:
         # 非 Linux 系统：保持原 URL 不变
         return url
 
-
 if __name__ == '__main__':
-    value = get_config_info('qwen3-max', 'base_url')
+    value = get_config_info('qwen3-max','base_url')
     print(value)
     schema = get_config_section('qwen3-max')
     print(schema)
